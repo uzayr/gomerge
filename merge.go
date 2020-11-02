@@ -7,15 +7,16 @@ import (
 )
 
 var (
-	ErrorInput = errors.New("Check Inputs")
+	errorInput          = errors.New("Check Inputs")
+	errorDifferentTypes = errors.New("Different types of arguments")
 )
 
 func checkIngress(src, dst interface{}) error {
-	if dst == nil && src == nil {
-		return ErrorInput
+	if dst == nil || src == nil {
+		return errorInput
 	}
-	if dst != nil && reflect.ValueOf(dst).Kind() != reflect.Ptr {
-		return ErrorInput
+	if reflect.ValueOf(dst).Kind() != reflect.Ptr {
+		return errorInput
 	}
 	return nil
 }
@@ -203,7 +204,7 @@ func conflate(src, dst reflect.Value) (err error) {
 					return
 				}
 			} else {
-				return ErrorInput
+				return errorInput
 			}
 			break
 		}
@@ -234,6 +235,7 @@ func conflate(src, dst reflect.Value) (err error) {
 	return nil
 }
 
+// Merge is ...
 func Merge(src, dst interface{}) error {
 	if err := checkIngress(src, dst); err != nil {
 		return err
@@ -243,12 +245,15 @@ func Merge(src, dst interface{}) error {
 	)
 	vDst = reflect.ValueOf(dst).Elem()
 	if vDst.Kind() != reflect.Struct && vDst.Kind() != reflect.Map {
-		return ErrorInput
+		return errorInput
 	}
 	vSrc = reflect.ValueOf(src)
 	// Check if vSrc is a pointer to dereference it.
 	if vSrc.Kind() == reflect.Ptr {
 		vSrc = vSrc.Elem()
+	}
+	if vDst.Type() != vSrc.Type() {
+		return errorDifferentTypes
 	}
 	return conflate(vSrc, vDst)
 }
