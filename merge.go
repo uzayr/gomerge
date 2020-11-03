@@ -88,7 +88,7 @@ func conflate(src, dst reflect.Value) (err error) {
 	case reflect.Struct:
 		if hasMergeableFields(dst) {
 			for i, n := 0, dst.NumField(); i < n; i++ {
-				if err := conflate(dst.Field(i), src.Field(i)); err != nil {
+				if err := conflate(src.Field(i), dst.Field(i)); err != nil {
 					return err
 				}
 			}
@@ -136,7 +136,7 @@ func conflate(src, dst reflect.Value) (err error) {
 							dstMapElm = reflect.ValueOf(dstMapElm.Interface())
 						}
 					}
-					if err = conflate(dstMapElm, srcMapElm); err != nil {
+					if err = conflate(srcMapElm, dstMapElm); err != nil {
 						return
 					}
 				case reflect.Slice:
@@ -196,11 +196,11 @@ func conflate(src, dst reflect.Value) (err error) {
 					dst.Set(src)
 				}
 			} else if src.Kind() == reflect.Ptr {
-				if err = conflate(dst.Elem(), src.Elem()); err != nil {
+				if err = conflate(src.Elem(), dst.Elem()); err != nil {
 					return
 				}
 			} else if dst.Elem().Type() == src.Type() {
-				if err = conflate(dst.Elem(), src); err != nil {
+				if err = conflate(src.Elem(), dst); err != nil {
 					return
 				}
 			} else {
@@ -217,7 +217,7 @@ func conflate(src, dst reflect.Value) (err error) {
 		}
 
 		if dst.Elem().Kind() == src.Elem().Kind() {
-			if err = conflate(dst.Elem(), src.Elem()); err != nil {
+			if err = conflate(src.Elem(), dst.Elem()); err != nil {
 				return
 			}
 			break
