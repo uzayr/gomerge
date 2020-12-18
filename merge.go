@@ -177,8 +177,14 @@ func conflate(src, dst reflect.Value) (err error) {
 			dst.Set(src)
 		}
 	case reflect.Ptr:
-		switch src.Elem().Kind() {
-		case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Float32, reflect.Float64, reflect.String, reflect.Slice:
+		var x bool
+		if !dst.IsNil() {
+			switch src.Elem().Kind() {
+			case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Float32, reflect.Float64, reflect.String, reflect.Slice:
+				x = true
+			}
+		}
+		if x {
 			break
 		}
 		fallthrough
